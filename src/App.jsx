@@ -41,7 +41,7 @@ function App() {
         );
         setMovies(filteredMovies);
       });
-  }, []);
+  }, [API_TOKEN]);
 
   return (
     <Routes>
@@ -55,6 +55,7 @@ function App() {
               {movies.map((movie) => (
                 <MovieCard
                   key={movie.id}
+                  id={movie.id}
                   poster_path={movie.poster_path}
                   title={movie.title}
                   vote_average={movie.vote_average}
@@ -65,7 +66,7 @@ function App() {
         />
 
         {/* 상세 페이지 */}
-        <Route path="details" element={<MovieDetail />} />
+        <Route path="details/:id" element={<MovieDetail />} />
       </Route>
     </Routes>
   );

@@ -1,15 +1,23 @@
+import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 const baseUrl = "https://image.tmdb.org/t/p/w500";
 
 export default function MovieDetail() {
+  const { id } = useParams();
   const [movie, setMovie] = useState(null);
+  const API_TOKEN = import.meta.env.VITE_TMDB_ACCESS_TOKEN;
 
   useEffect(() => {
-    fetch("/movieDetailData.json")
+    fetch(`https://api.themoviedb.org/3/movie/${id}`, {
+      headers: {
+        Authorization: `Bearer ${API_TOKEN}`,
+        accept: "application/json",
+      },
+    })
       .then((res) => res.json())
       .then((data) => setMovie(data));
-  }, []);
+  }, [id, API_TOKEN]);
 
   if (!movie) {
     return <div>로딩중...</div>;
@@ -19,7 +27,7 @@ export default function MovieDetail() {
 
   return (
     <div className="flex p-4">
-      <img src={baseUrl + backdrop_path} alt={title} className="w-1/2 rounded-lg" />
+      <img src={`${baseUrl}${backdrop_path}`} alt={title} className="w-1/2 rounded-lg" />
       <div className="ml-4 text-black">
         <h1 className="text-3xl font-bold">{title}</h1>
         <p className="text-lg">평점: {vote_average}</p>
