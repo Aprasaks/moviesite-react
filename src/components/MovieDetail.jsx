@@ -20,7 +20,7 @@ export default function MovieDetail() {
   return (
     <div className="flex p-4">
       <img src={baseUrl + backdrop_path} alt={title} className="w-1/2 rounded-lg" />
-      <div className="ml-4 text-white">
+      <div className="ml-4 text-black">
         <h1 className="text-3xl font-bold">{title}</h1>
         <p className="text-lg">평점: {vote_average}</p>
         <p className="mt-2">장르: {genres.map((g) => g.name).join(", ")}</p>
