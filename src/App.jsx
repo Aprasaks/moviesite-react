@@ -17,7 +17,7 @@ function App() {
   return (
     <Routes>
       {/* 공통 Layout */}
-      <Route path="/" element={<Layout />}>
+      <Route path="/" element={<Layout movies={movies} />}>
         {/* 메인 페이지 */}
         <Route
           index
