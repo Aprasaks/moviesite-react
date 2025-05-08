@@ -4,13 +4,20 @@ import { useEffect, useState } from "react";
 import MovieCard from "./components/MovieCard";
 import MovieDetail from "./components/MovieDetail";
 import Layout from "./components/Layout";
+import { useSearchParams } from "react-router-dom";
 
 function App() {
   const [movies, setMovies] = useState([]);
   const API_TOKEN = import.meta.env.VITE_TMDB_ACCESS_TOKEN;
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    fetch("https://api.themoviedb.org/3/movie/popular", {
+    const query = searchParams.get("query");
+    const url = query
+      ? `https://api.themoviedb.org/3/search/movie?query=${query}`
+      : "https://api.themoviedb.org/3/movie/popular";
+
+    fetch(url, {
       headers: {
         Authorization: `Bearer ${API_TOKEN}`,
         accept: "application/json",
@@ -41,7 +48,7 @@ function App() {
         );
         setMovies(filteredMovies);
       });
-  }, [API_TOKEN]);
+  }, [API_TOKEN, searchParams]);
 
   return (
     <Routes>
