@@ -7,12 +7,18 @@ import Layout from "./components/Layout";
 
 function App() {
   const [movies, setMovies] = useState([]);
+  const API_TOKEN = import.meta.env.VITE_TMDB_ACCESS_TOKEN;
 
   useEffect(() => {
-    fetch("/movieListData.json")
+    fetch("https://api.themoviedb.org/3/movie/popular", {
+      headers: {
+        Authorization: `Bearer ${API_TOKEN}`,
+        accept: "application/json",
+      },
+    })
       .then((res) => res.json())
       .then((data) => setMovies(data.results));
-  }, []);
+  });
 
   return (
     <Routes>

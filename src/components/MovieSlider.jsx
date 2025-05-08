@@ -10,7 +10,7 @@ const baseUrl = "https://image.tmdb.org/t/p/w500";
 export default function MovieSlider({ movies }) {
   return (
     <div className="my-8">
-      <h2 className="text-2xl font-bold text-center mb-4">🔥 오늘의 추천 영화</h2>
+      <h2 className="text-2xl font-bold text-center mb-4">팝콘 준비하자!</h2>
       <Swiper
         modules={[Navigation, Pagination, Autoplay]}
         spaceBetween={20}
