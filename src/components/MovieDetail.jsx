@@ -20,7 +20,11 @@ export default function MovieDetail() {
   }, [id, API_TOKEN]);
 
   if (!movie) {
-    return <div>로딩중...</div>;
+    return (
+      <div className="flex justify-center items-center h-96">
+        <div className="w-12 h-12 border-4 border-dashed rounded-full animate-spin border-gray-500"></div>
+      </div>
+    );
   }
 
   const { backdrop_path, title, vote_average, genres, overview } = movie;
