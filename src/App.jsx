@@ -17,8 +17,31 @@ function App() {
       },
     })
       .then((res) => res.json())
-      .then((data) => setMovies(data.results));
-  });
+      .then((data) => {
+        const bannedKeywords = [
+          "xxx",
+          "porn",
+          "erotic",
+          "sex",
+          "adult",
+          "섹스",
+          "야동",
+          "포르노",
+          "에로",
+          "노출",
+        ];
+        const filteredMovies = data.results.filter(
+          (movie) =>
+            movie.adult === false &&
+            !bannedKeywords.some(
+              (keyword) =>
+                movie.title?.toLowerCase().includes(keyword) ||
+                movie.overview?.toLowerCase().includes(keyword)
+            )
+        );
+        setMovies(filteredMovies);
+      });
+  }, []);
 
   return (
     <Routes>
