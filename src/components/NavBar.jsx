@@ -1,22 +1,39 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useSupabaseAuth } from "../supabase/auth";
 import { localStorageUtils } from "../supabase/utilities";
 import { USER_INFO_KEY } from "../supabase/utilities/config";
+import useDebounce from "../components/hooks/useDebounce";
 
 export default function NavBar({ user, setUser }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { logout } = useSupabaseAuth();
-  const navigate = useNavigate();
+  const [searchInput, setSearchInput] = useState("");
 
-  // ✅ 새로고침 시 localStorage에서 user 가져오기
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { logout } = useSupabaseAuth();
+  const debouncedSearch = useDebounce(searchInput, 500);
+
+  // ✅ 새로고침 시 user 복원
   useEffect(() => {
     const { getItemFromLocalStorage } = localStorageUtils();
     const storedUser = getItemFromLocalStorage(USER_INFO_KEY.customKey);
-    if (storedUser?.user) {
-      setUser(storedUser.user);
-    }
+    if (storedUser?.user) setUser(storedUser.user);
   }, [setUser]);
+
+  // ✅ 검색 → /login, /signup 제외하고만 동작
+  useEffect(() => {
+    const isAuthPage =
+      location.pathname.startsWith("/login") || location.pathname.startsWith("/signup");
+
+    if (!isAuthPage) {
+      if (debouncedSearch) {
+        navigate(`/?query=${encodeURIComponent(debouncedSearch)}`);
+      } else {
+        navigate("/");
+      }
+    }
+  }, [debouncedSearch, navigate, location.pathname]);
 
   const handleLogout = async () => {
     await logout();
@@ -31,6 +48,8 @@ export default function NavBar({ user, setUser }) {
 
       <input
         type="text"
+        value={searchInput}
+        onChange={(e) => setSearchInput(e.target.value)}
         placeholder="검색하려면 누르세요"
         className="w-1/2 rounded-full px-4 py-2 text-black focus:outline-none"
       />

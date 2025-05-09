@@ -11,8 +11,7 @@ export default function LoginPage({ setUser }) {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
-  const { login } = useSupabaseAuth();
-  const { loginWithGoogle, loginWithKakao } = useSupabaseAuth();
+  const { login, loginWithGoogle, loginWithKakao } = useSupabaseAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
