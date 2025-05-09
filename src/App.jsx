@@ -5,6 +5,8 @@ import MovieCard from "./components/MovieCard";
 import MovieDetail from "./components/MovieDetail";
 import Layout from "./components/Layout";
 import { useSearchParams } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 
 function App() {
   const [movies, setMovies] = useState([]);
@@ -74,6 +76,8 @@ function App() {
 
         {/* 상세 페이지 */}
         <Route path="details/:id" element={<MovieDetail />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
       </Route>
     </Routes>
   );

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import useDebounce from "./hooks/useDebounce";
+import { Link } from "react-router-dom";
 
 export default function NavBar() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,7 +30,9 @@ export default function NavBar() {
       />
 
       <div>
-        <button className="ml-4">로그인</button>
+        <Link to="/login" className="ml-4">
+          로그인
+        </Link>
       </div>
     </nav>
   );
