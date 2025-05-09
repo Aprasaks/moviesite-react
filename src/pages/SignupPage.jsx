@@ -1,5 +1,7 @@
 import { useState } from "react";
 import InputCommon from "../components/InputCommon";
+import { useSupabaseAuth } from "../supabase/auth";
+import { useNavigate } from "react-router-dom";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -12,8 +14,12 @@ export default function SignupPage() {
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
 
-  const handleSubmit = (e) => {
+  const { signUp } = useSupabaseAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     let valid = true;
 
     if (!email.includes("@")) {
@@ -23,35 +29,40 @@ export default function SignupPage() {
       setEmailError("");
     }
 
-    if (!/^[a-zA-Z가-힣0-9]{2,8}$/.test(name)) {
-      setNameError("이름은 2~8자, 한글/영어/숫자만 사용");
+    if (!/[a-zA-Z가-힣0-9]{2,8}/.test(name)) {
+      setNameError("이름을 입력해주세요.");
       valid = false;
     } else {
       setNameError("");
     }
 
-    if (!/^(?=.*[a-zA-Z])(?=.*\d).{8,}$/.test(password)) {
-      setPasswordError("영문+숫자 조합 8자 이상");
+    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
+      setPasswordError("영문 대문자/소문자 + 숫자의 조합 사용");
       valid = false;
     } else {
       setPasswordError("");
     }
 
     if (password !== confirmPassword) {
-      setConfirmPasswordError("비밀번호가 일치하지 않아요.");
+      setConfirmPasswordError("비밀번호가 일치하지 않습니다.");
       valid = false;
     } else {
       setConfirmPasswordError("");
     }
 
-    if (valid) {
-      console.log("회원가입 성공!");
-      // supabase 로직 나중에 추가
+    if (!valid) return;
+
+    try {
+      await signUp({ email, password, userName: name });
+      alert("회원가입 성공!");
+      navigate("/"); // 메인페이지 이동
+    } catch (error) {
+      alert(error.message);
     }
   };
 
   return (
-    <div className="slide-in w-full max-w-md mx-auto p-8 bg-white shadow rounded">
+    <div className="max-w-md mx-auto p-8 bg-white shadow rounded">
       <h2 className="text-2xl font-bold mb-6 text-center">회원가입</h2>
       <form onSubmit={handleSubmit}>
         <InputCommon
@@ -60,6 +71,7 @@ export default function SignupPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           error={emailError}
+          placeholder="이메일을 입력하세요"
         />
         <InputCommon
           label="이름"
@@ -67,6 +79,7 @@ export default function SignupPage() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           error={nameError}
+          placeholder="이름을 입력하세요"
         />
         <InputCommon
           label="비밀번호"
@@ -74,6 +87,7 @@ export default function SignupPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           error={passwordError}
+          placeholder="비밀번호를 입력하세요"
         />
         <InputCommon
           label="비밀번호 확인"
@@ -81,6 +95,7 @@ export default function SignupPage() {
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           error={confirmPasswordError}
+          placeholder="비밀번호를 다시 입력하세요"
         />
         <button
           type="submit"

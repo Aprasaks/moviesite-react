@@ -1,13 +1,28 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useSupabaseAuth } from "../supabase/auth";
+import { localStorageUtils } from "../supabase/utilities";
+import { USER_INFO_KEY } from "../supabase/utilities/config";
 
-export default function NavBar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+export default function NavBar({ user, setUser }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { logout } = useSupabaseAuth();
+  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setIsMenuOpen(false); // 로그아웃할 때 메뉴 닫기
+  // ✅ 새로고침 시 localStorage에서 user 가져오기
+  useEffect(() => {
+    const { getItemFromLocalStorage } = localStorageUtils();
+    const storedUser = getItemFromLocalStorage(USER_INFO_KEY.customKey);
+    if (storedUser?.user) {
+      setUser(storedUser.user);
+    }
+  }, [setUser]);
+
+  const handleLogout = async () => {
+    await logout();
+    setUser(null);
+    setIsMenuOpen(false);
+    navigate("/");
   };
 
   return (
@@ -21,11 +36,13 @@ export default function NavBar() {
       />
 
       <div>
-        {isLoggedIn ? (
+        {user ? (
           <div className="relative">
-            <div
-              className="w-8 h-8 rounded-full bg-purple-500 cursor-pointer"
-              onClick={() => setIsMenuOpen((prev) => !prev)} // 클릭시 토글
+            <img
+              src={user.profileImageUrl}
+              alt="프로필"
+              className="w-8 h-8 rounded-full cursor-pointer"
+              onClick={() => setIsMenuOpen((prev) => !prev)}
             />
             {isMenuOpen && (
               <div className="absolute right-0 top-full mt-1 w-32 bg-white text-black rounded shadow z-50">
@@ -46,11 +63,7 @@ export default function NavBar() {
             )}
           </div>
         ) : (
-          <Link
-            to="#"
-            onClick={() => setIsLoggedIn(true)} // 임시 로그인 처리
-            className="ml-4"
-          >
+          <Link to="/login" className="ml-4">
             로그인
           </Link>
         )}

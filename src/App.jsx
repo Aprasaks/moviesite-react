@@ -1,17 +1,17 @@
 import "./App.css";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import MovieCard from "./components/MovieCard";
 import MovieDetail from "./components/MovieDetail";
 import Layout from "./components/Layout";
-import { useSearchParams } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 
 function App() {
   const [movies, setMovies] = useState([]);
-  const API_TOKEN = import.meta.env.VITE_TMDB_ACCESS_TOKEN;
+  const [user, setUser] = useState(null);
   const [searchParams] = useSearchParams();
+  const API_TOKEN = import.meta.env.VITE_TMDB_ACCESS_TOKEN;
 
   useEffect(() => {
     const query = searchParams.get("query");
@@ -39,24 +39,24 @@ function App() {
           "에로",
           "노출",
         ];
+
         const filteredMovies = data.results.filter(
           (movie) =>
-            movie.adult === false &&
+            !movie.adult &&
             !bannedKeywords.some(
               (keyword) =>
-                movie.title?.toLowerCase().includes(keyword) ||
-                movie.overview?.toLowerCase().includes(keyword)
+                (movie.title || "").toLowerCase().includes(keyword) ||
+                (movie.overview || "").toLowerCase().includes(keyword)
             )
         );
+
         setMovies(filteredMovies);
       });
   }, [API_TOKEN, searchParams]);
 
   return (
     <Routes>
-      {/* 공통 Layout */}
-      <Route path="/" element={<Layout movies={movies} />}>
-        {/* 메인 페이지 */}
+      <Route path="/" element={<Layout movies={movies} user={user} setUser={setUser} />}>
         <Route
           index
           element={
@@ -73,11 +73,9 @@ function App() {
             </div>
           }
         />
-
-        {/* 상세 페이지 */}
         <Route path="details/:id" element={<MovieDetail />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
+        <Route path="login" element={<LoginPage setUser={setUser} />} />
+        <Route path="signup" element={<SignupPage />} />
       </Route>
     </Routes>
   );

@@ -1,18 +1,21 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import InputCommon from "../components/InputCommon";
+import { useSupabaseAuth } from "../supabase/";
+import { useNavigate, Link } from "react-router-dom";
 
-//우리가 아는대로 input 태그 이런걸 쓰는게아니라
-//재사용가능한 컴포넌트를 만들고 그걸 가져오는방식
-//이번 프로젝트에서 처음이라 잘 이해할 것
-export default function LoginPage() {
+export default function LoginPage({ setUser }) {
+  // ⭐ setUser props 추가
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
-  //새로고침 방지하면서 유효성 검사 시작하자
-  const handleSubmit = (e) => {
+  const { login } = useSupabaseAuth();
+  const { signUp, loginWithGoogle, loginWithKakao } = useSupabaseAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     let valid = true;
@@ -31,14 +34,20 @@ export default function LoginPage() {
       setPasswordError("");
     }
 
-    if (valid) {
-      // 로그인 API 호출 or 처리
-      console.log("로그인 성공!");
+    if (!valid) return;
+
+    try {
+      const userInfo = await login({ email, password }); // ⭐ login 결과 받아옴
+      setUser(userInfo.user); // ⭐ 로그인 성공 시 App의 user 상태 업데이트
+      alert("로그인 성공!");
+      navigate("/"); // 메인 페이지로 이동
+    } catch (error) {
+      alert(error.message);
     }
   };
 
   return (
-    <div className="slide-in w-full max-w-md mx-auto p-8 bg-white shadow rounded">
+    <div className="max-w-md mx-auto p-8 bg-white shadow rounded">
       <h2 className="text-2xl font-bold mb-6 text-center">로그인</h2>
       <form onSubmit={handleSubmit}>
         <InputCommon
@@ -47,6 +56,7 @@ export default function LoginPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           error={emailError}
+          placeholder="이메일을 입력하세요"
         />
         <InputCommon
           label="비밀번호"
@@ -54,6 +64,7 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           error={passwordError}
+          placeholder="비밀번호를 입력하세요"
         />
         <button
           type="submit"
@@ -61,14 +72,31 @@ export default function LoginPage() {
         >
           로그인
         </button>
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={() => loginWithGoogle()}
+            className="w-full bg-red-500 text-white  py-2 rounded hover:bg-red-600"
+          >
+            Google로 가입하기
+          </button>
+        </div>
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={() => loginWithKakao()}
+            className="w-full bg-yellow-300 text-black  py-2 rounded hover:bg-yellow-400"
+          >
+            KakaoTalk으로 가입하기
+          </button>
+        </div>
       </form>
-
-      <div className="mt-4 text-center text-sm">
-        여기가 처음이니?{" "}
-        <Link to="/signup" className="text-blue-500 underline">
+      <p className="mt-4 text-sm text-center text-gray-600">
+        회원이 아니신가요?
+        <Link to="/signup" className="text-blue-900 underline">
           간편가입
         </Link>
-      </div>
+      </p>
     </div>
   );
 }
